@@ -8,9 +8,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/Khan/genqlient/graphql"
-	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
 	"io"
 	"io/ioutil"
 	"log"
@@ -21,6 +18,10 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/Khan/genqlient/graphql"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 
 	"github.com/cheshir/go-mq"
 	"github.com/matryer/try"
@@ -60,10 +61,16 @@ type S3 struct {
 }
 
 type InsightsMessage struct {
-	Payload       map[string]string `json:"payload"`
+	Payload       []FactsJSONInput  `json:"payload"`
 	BinaryPayload map[string]string `json:"binaryPayload"`
 	Annotations   map[string]string `json:"annotations"`
 	Labels        map[string]string `json:"labels"`
+}
+
+type FactsJSONInput struct {
+	Project     string       `json:"project"`
+	Environment string       `json:"environment"`
+	Facts       []LagoonFact `json:"facts"`
 }
 
 type InsightsData struct {
@@ -347,8 +354,8 @@ func processingIncomingMessageQueueFactory(h *Messaging) func(mq.Message) {
 
 		// Process Lagoon API integration
 		if !h.LagoonAPI.Disabled {
-			if insights.InsightsType != Sbom && insights.InsightsType != Image {
-				log.Println("only 'sbom' and 'image' types are currently supported for api processing")
+			if insights.InsightsType != Sbom && insights.InsightsType != Image && insights.InsightsType != Raw {
+				log.Println("only 'sbom', 'raw' and 'image' types are currently supported for api processing")
 			} else {
 				err := h.sendToLagoonAPI(incoming, resource, insights)
 				if err != nil {
@@ -375,7 +382,6 @@ func (h *Messaging) sendToLagoonAPI(incoming *InsightsMessage, resource Resource
 	// Just wrapping this in a function to clean up the calls near the bottom of this function
 	// could potentially be moved into its own method
 	var processFactList = func(facts []LagoonFact, apiClient graphql.Client, resource ResourceDestination, source string, h *Messaging) error {
-
 		project, environment, apiErr := determineResourceFromLagoonAPI(apiClient, resource)
 		log.Printf("Matched %v number of facts for project:environment '%v:%v' from source '%v'", len(facts), project, environment, source)
 
@@ -400,15 +406,17 @@ func (h *Messaging) sendToLagoonAPI(incoming *InsightsMessage, resource Resource
 	}
 
 	if insights.InputPayload == Payload {
-		for _, v := range incoming.Payload {
-			if insights.InsightsType == Sbom {
-				facts, source, err = processSbomInsightsData(h, insights, v, apiClient, resource)
+		for _, p := range incoming.Payload {
+			for _, filter := range parserFilters {
+				facts, source, err = filter(h, insights, p, apiClient, resource)
 				if err != nil {
-					log.Println(fmt.Errorf(err.Error()))
+					log.Println("warning: unable to process payload: ", fmt.Errorf(err.Error()))
 				}
-				err2 := processFactList(facts, apiClient, resource, source, h)
-				if err2 != nil {
-					return err2
+				if len(facts) > 0 {
+					err2 := processFactList(facts, apiClient, resource, source, h)
+					if err2 != nil {
+						return err2
+					}
 				}
 			}
 		}
@@ -416,7 +424,6 @@ func (h *Messaging) sendToLagoonAPI(incoming *InsightsMessage, resource Resource
 
 	if insights.InputPayload == BinaryPayload {
 		for _, v := range incoming.BinaryPayload {
-
 			for _, filter := range parserFilters {
 				facts, source, err = filter(h, insights, v, apiClient, resource)
 				if err != nil {
@@ -555,6 +562,7 @@ func (h *Messaging) sendToLagoonS3(incoming *InsightsMessage, insights InsightsD
 			}
 
 			s3FilePath := strings.ToLower(fmt.Sprintf("insights/%s/%s/%s", resource.Project, resource.Environment, objectName))
+
 			info, err := minioClient.FPutObject(ctx, h.S3Config.Bucket, s3FilePath, tempFilePath, minio.PutObjectOptions{
 				ContentType:     contentType,
 				ContentEncoding: contentEncoding,

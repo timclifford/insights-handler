@@ -5,13 +5,13 @@ query getProjectByName($project: String!) {
     }
 }
 
-query getEnvironmentByName($name: String!, $project: Int!) {
-    environmentByName(
-        name: $name
-        project: $project
-    ) {
-        id
-        name
+query environmentByOpenshiftProjectName($openshiftProjectName: String!) {
+    environmentByOpenshiftProjectName(openshiftProjectName: $openshiftProjectName) {
+        project {
+            id
+            name
+            openshiftProjectName
+        }
     }
 }
 

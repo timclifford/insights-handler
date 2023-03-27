@@ -1,0 +1,15 @@
+{
+  "payload": {
+    "facts.json": "ewogICJmYWN0cyI6IFsKICAgIHsKICAgICAgIm5hbWUiOiAiZHJ1cGFsLWNvcmUiLAogICAgICAidmFsdWUiOiAiOS4wLjEiLAogICAgICAiZW52aXJvbm1lbnQiOiA5MDI2NiwKICAgICAgInNvdXJjZSI6ICJkcnVzaC1wbWwiLAogICAgICAiZGVzY3JpcHRpb24iOiAiRHJ1cGFsIENNUyB2ZXJzaW9uIGZvdW5kIG9uIGVudmlyb25tZW50IiwKICAgICAgImNhdGVnb3J5IjogIkZyYW1ld29yayIsCiAgICAgICJrZXlGYWN0IjogdHJ1ZSwKICAgICAgInR5cGUiOiAiVEVYVCIKICAgIH0sCiAgICB7CiAgICAgICJuYW1lIjogInBocC12ZXJzaW9uIiwKICAgICAgInZhbHVlIjogIjguMC4zIiwKICAgICAgImVudmlyb25tZW50IjogOTAyNjYsCiAgICAgICJzb3VyY2UiOiAiZHJ1c2gtcG1sIiwKICAgICAgImRlc2NyaXB0aW9uIjogIlBIUCB2ZXJzaW9uIGZvdW5kIG9uIGVudmlyb25tZW50IiwKICAgICAgImNhdGVnb3J5IjogIlByb2dyYW1taW5nIGxhbmd1YWdlIiwKICAgICAgImtleUZhY3QiOiBmYWxzZSwKICAgICAgInR5cGUiOiAiVEVYVCIKICAgIH0KICBdCn0="
+  },
+  "binaryPayload": {},
+  "annotations": {},
+  "labels": {
+    "lagoon.sh/project": "high-cotton",
+    "lagoon.sh/environment": "Master",
+    "lagoon.sh/service": "cli",
+    "lagoon.sh/insightsType": "raw",
+    "lagoon.sh/insightsOutputFileMIMEType": "application/json",
+    "lagoon.sh/insightsOutputFileExt": "json"
+  }
+}

@@ -70,7 +70,7 @@ func Test_processFactsFromSBOM(t *testing.T) {
 			want: []lagoonclient.AddFactInput{
 				{
 					Environment: 3,
-					Name:        "@npmcli/arborist:2.6.2",
+					Name:        "@npmcli/arborist",
 					Value:       "2.6.2",
 					Source:      "syft",
 					Description: "pkg:npm/@npmcli%2Farborist@2.6.2",
@@ -79,7 +79,7 @@ func Test_processFactsFromSBOM(t *testing.T) {
 				},
 				{
 					Environment: 3,
-					Name:        "@npmcli/ci-detect:1.3.0",
+					Name:        "@npmcli/ci-detect",
 					Value:       "1.3.0",
 					Source:      "syft",
 					Description: "pkg:npm/@npmcli%2Fci-detect@1.3.0",
